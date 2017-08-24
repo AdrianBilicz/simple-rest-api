@@ -1,4 +1,5 @@
 var express = require('express');
+var session = require('client-sessions')
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -30,6 +31,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  cookieName: 'session',
+  duration: 24*60*60*1000,
+  secret: 'asdsadf',
+  activeDuration: 30*60*1000
+}))
 
 app.use('/', index);
 app.use('/api', api);
