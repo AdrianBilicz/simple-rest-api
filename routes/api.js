@@ -17,7 +17,8 @@ router.post('/:resource', function(req,res,next){
 
 	var formData = req.body
 
-	controllers.profile.post(formData)
+	controller
+	.post(formData)
 	.then(function(result){
 		res.json({
 			confirmation: 'success',
@@ -45,7 +46,7 @@ router.get('/:resource', function(req,res,next){
 			message: `resource ${resource} not supported`
 		})
 	}
-	if(resource === 'profile'){
+
 		controller
 		.get(null)
 		.then(function(results){
@@ -60,14 +61,6 @@ router.get('/:resource', function(req,res,next){
 				message: err
 			})
 		})
-
-		return
-	}
-	res.json({
-		confirmation: 'fail',
-		message: 'resource not supported'
-	})
-
 })
 
 router.get('/:resource/:id', function(req,res,next){
