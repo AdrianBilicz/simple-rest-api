@@ -1,35 +1,34 @@
 var express = require('express')
 var router = express.Router()
-var Profile = require('../models/Profile')
+var controllers = require('../controllers')
 
 
 router.post('/:resource', function(req,res,next){
 	var resource = req.params.resource
-	console.log(resource)
-	if(resource === 'profile'){
-		var formData = req.body
-		console.log(formData)
-		Profile.create(formData,function(err,profile){
-			if(err){
-				res.json({
-					confirmation: 'fail',
-					message: err
-				})
-				return
-			}
 
-			res.json({
-				confirmation: 'success',
-				results: profile
-			})
-
+	var resource = req.params.resource
+	var controller = controllers[resource]
+	if(controller == null){
+		res.json({
+			confirmation: 'fail',
+			message: `resource ${resource} not supported`
 		})
-		return
-
 	}
-	res.json({
-		confirmation: 'fail',
-		message: 'resource not supported'
+
+	var formData = req.body
+
+	controllers.profile.post(formData)
+	.then(function(result){
+		res.json({
+			confirmation: 'success',
+			results: result
+		})
+	})
+	.catch(function(err){
+		res.json({
+			confirmation: 'fail',
+			message: err
+		})
 	})
 
 })
@@ -39,20 +38,29 @@ router.post('/:resource', function(req,res,next){
 router.get('/:resource', function(req,res,next){
 
 	var resource = req.params.resource
+	var controller = controllers[resource]
+	if(controller == null){
+		res.json({
+			confirmation: 'fail',
+			message: `resource ${resource} not supported`
+		})
+	}
 	if(resource === 'profile'){
-		Profile.find(null, function(err,profiles){
-			if(err){
-				res.json({
-					confirmation: 'error'
-				})
-				return
-			}
+		controller
+		.get(null)
+		.then(function(results){
 			res.json({
 				confirmation: 'success',
-				results: profiles
+				results: results
 			})
-
 		})
+		.catch(function(err){
+			res.json({
+				confirmation: 'fail',
+				message: err
+			})
+		})
+
 		return
 	}
 	res.json({
@@ -66,36 +74,28 @@ router.get('/:resource/:id', function(req,res,next){
 	var resource = req.params.resource
 	var id = req.params.id
 
-	if( resource == 'profile'){
-		Profile.findById(id,function(err,profile){
-			if(err){
-				res.json({
-					confirmation: 'fail',
-					message: 'profile not found'
-				})
-				return
-
-			}
-
-			if(profile == null){
-				res.json({
-					confirmation: 'fail',
-					result: profile
-				})
-			}
-				res.json({
-					confirmation: 'fail',
-					result: profile
-				})
-
+	var controller = controllers[resource]
+	if(controller == null){
+		res.json({
+			confirmation: 'fail',
+			message: `resource ${resource} not supported`
 		})
-		return
 	}
-	res.json({
-		confirmation: 'fail',
-		message: 'resource not supported'
-	})
 
+	controller
+	.getById(id)
+	.then(function(result){
+		res.json({
+			confirmation: 'success',
+			result: result
+		})
+	})
+	.catch(function(err){
+		res.json({
+			confirmation: 'fail',
+			message: err.message
+		})
+	})
 
 })
 
